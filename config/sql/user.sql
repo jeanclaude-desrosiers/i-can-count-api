@@ -13,14 +13,5 @@ CREATE TABLE IF NOT EXISTS user (
                         UNIQUE,
 
     passw_hash_salt     CHAR(60)
-                        NOT NULL,
-
-    invalid_logins      TINYINT UNSIGNED
                         NOT NULL
-                        DEFAULT 0,
-    
-    is_locked           TINYINT(1)
-                        DEFAULT FALSE,
-
-    locked_date         DATETIME
 );
