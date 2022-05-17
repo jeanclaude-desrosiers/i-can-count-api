@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { exit } from 'process';
 import path from 'path';
+import crypto from 'crypto';
 import get_database_config from './config_db.mjs';
 import get_application_config from './config_app.mjs';
 import prepare_db from './prepare_db.mjs';
@@ -28,13 +29,44 @@ CONFIG.application = get_application_config();
 
 try {
     fs.writeFileSync(
-        path.join(__dirname, '..', 'src', 'config.json'),
+        path.join(__dirname, '..', 'src', 'res', 'config.json'),
         JSON.stringify(CONFIG, null, 4)
     );
 
     console.log("\nWrote the configuration to file!\n");
 } catch (exc) {
     console.error(`\nCould not write configuration to file :\n${exc}\n`);
+
+    console.log('Exiting\n');
+    exit(1);
+}
+
+try {
+    const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+        modulusLength: 2048,
+        publicKeyEncoding: {
+            type: 'spki',
+            format: 'pem'
+        },
+        privateKeyEncoding: {
+            type: 'pkcs8',
+            format: 'pem'
+        }
+    });
+
+    fs.writeFileSync(
+        path.join(__dirname, '..', 'src', 'res', 'rsa.priv.pem'),
+        privateKey
+    );
+
+    fs.writeFileSync(
+        path.join(__dirname, '..', 'src', 'res', 'rsa.pub.pem'),
+        publicKey
+    );
+
+    console.log("\nWrote the RSA public/private keys to file!\n");
+} catch (exc) {
+    console.error(`\nCould not write RSA keys to file :\n${exc}\n`);
 
     console.log('Exiting\n');
     exit(1);
