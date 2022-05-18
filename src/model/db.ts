@@ -52,7 +52,7 @@ export class DatabaseClient {
             .then(result => (result[0] as ResultSetHeader).insertId);
     }
 
-    public update_one(query: string, args: any[]): Promise<boolean> {
+    public update_one(query: string, ...args: any[]): Promise<boolean> {
         return this.connection.beginTransaction()
             .then(() => this.query(query, args))
             .then(result => {
@@ -66,7 +66,7 @@ export class DatabaseClient {
             })
     }
 
-    public delete_one(query: string, args: any[]): Promise<boolean> {
+    public delete_one(query: string, ...args: any[]): Promise<boolean> {
         return this.update_one(query, args);
     }
 

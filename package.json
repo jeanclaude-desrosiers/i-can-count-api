@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/jeanclaude-desrosiers/i-can-count-api#readme",
   "dependencies": {
+    "@types/bcrypt": "^5.0.0",
     "bcrypt": "^5.0.1",
     "mysql2": "^2.3.3",
     "prompt-sync": "^4.2.0"
