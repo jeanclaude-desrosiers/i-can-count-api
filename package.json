@@ -4,7 +4,8 @@
   "description": "Backend API for the 'I Can Count' project",
   "main": "index.js",
   "scripts": {
-    "transpile": "npx tsc && cp ./src/res/* ./dist/res/",
+    "copy": "mkdir -p ./dist/res ./dist/public && cp -r ./src/res/* ./dist/res/ && cp -r ./src/public/* ./dist/public/",
+    "transpile": "npx tsc && npm run copy",
     "config": "node ./config/index.mjs",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run transpile && node ./dist/index.js"

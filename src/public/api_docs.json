@@ -1,0 +1,299 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "I Can Count",
+    "contact": {
+      "name": "Jean-Claude Desrosiers",
+      "email": "jean-claude.desrosiers@jclaude.xyz",
+      "url": "https://github.com/jeanclaude-desrosiers/i-can-count-api/issues"
+    },
+    "license": {
+      "name": "GNU GPL V2.0",
+      "url": "https://www.gnu.org/licenses/old-licenses/lgpl-2.0.html"
+    },
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "jwt",
+      "description": "JWT (JSON Web Token) management"
+    },
+    {
+      "name": "user",
+      "description": "User profile management"
+    },
+    {
+      "name": "item",
+      "description": "Items information management (CRUD)"
+    },
+    {
+      "name": "invoice",
+      "description": "Invoice management (CRUD)"
+    },
+    {
+      "name": "invoice/item",
+      "description": "Management of the items in invoices (CRUD)"
+    },
+    {
+      "name": "invoice/category",
+      "description": "Management of the different invoice categories (CRUD)"
+    },
+    {
+      "name": "tax",
+      "description": "Tax information management (CRUD)"
+    }
+  ],
+  "paths": {
+    "/jwt": {
+      "post": {
+        "tags": [
+          "jwt"
+        ],
+        "summary": "Create a JWT, given a valid username and password",
+        "operationId": "postJwt",
+        "requestBody": {
+          "description": "Credentials",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                }
+              },
+              "example": {
+                "username": "admin",
+                "password": "password123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jwt": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "jwt": "eyJhbGciOiJSUzI1NiJ9.eyJ1dWlkIjoxLCJpYXQiOjE2NTMwODA1OTgsImlzcyI6ImljYW5jb3VudCIsImV4cCI6MTY1MzA5ODU5OH0.Nd0MJpnYXBiA7uBD89zV_VEy6oEN_IufE2r2eNRDAYzWQvqiSGgcYbQ4LsZvU3hya0OmTWPvdY3_ERR0zwjlo7SIkN6Ep4_pTuPWdjvg-697aUr0LhV8mhlNsxmCSKH9STJyW4ga5gEH3Fr3d-xby9tz93PgajOBFoyWYzMj7mY51sG-f979urewOdF67kWpPoPaWiQ2oNb3nGC4eEJsExXztu8upEn_nrDIp62RpDyohKa1uL8MyoihwjYGhaBW6b50QIBC2nQZWgMUyfvN9RHXbWdhpMsilXmkv8O0tWOgNXuOl8ZWbrxwmUKz4ESqFWBW5usdS2uVzLjIYrlaJQ"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid Credentials"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Could not create JWT for user"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "item": {
+      "get": {
+        "tags": [
+          "item"
+        ],
+        "summary": "Get the list of all saved items",
+        "operationId": "getItem",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Item"
+                  }
+                },
+                "example": [
+                  {
+                    "uuid": 1,
+                    "id": "1",
+                    "name": "dozen of eggs",
+                    "description": "medium-sized eggs, from a brown chicken",
+                    "default_price": 10.99,
+                    "default_has_tax": null,
+                    "parent_uuid": null
+                  },
+                  {
+                    "uuid": 10,
+                    "id": "20",
+                    "name": "sheep",
+                    "description": "sheep with white wool",
+                    "default_price": 120.99,
+                    "default_has_tax": true,
+                    "parent_uuid": 4
+                  },
+                  {
+                    "uuid": 4,
+                    "id": "2",
+                    "name": "animal",
+                    "description": "animal category",
+                    "default_price": null,
+                    "default_has_tax": false,
+                    "parent_uuid": null
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "invalid jwt or format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid JWT"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "$ref": "#/components/securitySchemes/JWT"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "JWT": {
+        "type": "http",
+        "description": "Use the /jwt endpoint to get a JWT (JSON Web Token)",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error_Response": {
+        "description": "An error response sent by the API",
+        "type": "object",
+        "properties": {
+          "err": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "data": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "Item": {
+        "description": "An item",
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "default_price": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "default_has_tax": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "parent_uuid": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        }
+      }
+    }
+  }
+}
