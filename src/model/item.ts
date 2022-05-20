@@ -67,6 +67,18 @@ export class Item {
     }
 
     /**
+     * Reads all Item records.
+     * The 'R' in 'CRUD'
+     * 
+     * @param db 
+     * 
+     * @returns An array of all Item records, potentially empty
+     */
+    public static read_all(db: DatabaseClient): Promise<Item[]> {
+        return db.select_all('SELECT * FROM item', Item.ITEM_PARSER);
+    }
+
+    /**
      * Updates a single Item record.
      * The 'U' in 'CRUD'
      * 
