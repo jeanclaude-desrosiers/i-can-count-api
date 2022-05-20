@@ -28,14 +28,16 @@ router.post('/', (req, res) => {
             if (user) {
                 return JWT.from_user(user);
             } else {
-                res.status(400).end();
+                res.json({ err: 'Invalid Credentials' })
+                    .status(400).end();
             }
         })
         .then((jwt: string | undefined) => {
             if (jwt) {
                 res.json({ jwt }).end();
             } else {
-                res.status(500).end();
+                res.json({ err: 'Could not create JWT for user' })
+                    .status(500).end();
             }
         })
 });

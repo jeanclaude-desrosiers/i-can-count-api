@@ -1,11 +1,17 @@
-import express, { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { DatabaseClient } from '../model/db';
 import { JWT } from '../model/jwt';
 import { User } from '../model/user';
 
+/**
+ * Middleware function restricting access to requests with a valid JWT token
+ * 
+ * @param req 
+ * @param res 
+ * @param next 
+ */
 export function restrict_to_user(req: Request, res: Response, next: NextFunction) {
     let auth_header = req.get('Authorization');
-    console.log(auth_header);
 
     if (auth_header) {
         let [bearer, token, ...rest] = auth_header.split(' ');
@@ -16,17 +22,19 @@ export function restrict_to_user(req: Request, res: Response, next: NextFunction
             JWT.to_user(db, token)
                 .then((user: User | undefined) => {
                     if (user) {
-                        console.log('valid!');
                         next();
                     } else {
-                        res.status(403).end();
+                        res.json({ err: 'Invalid JWT' })
+                            .status(400).end();
                     }
                 })
                 .finally(() => db.close());
         } else {
-            res.status(403).end();
+            res.json({ err: 'Malformed Authorization header, expected "Bearer <JWT>"' })
+                .status(400).end();
         }
     } else {
-        res.status(403).end();
+        res.json({ err: 'Need a JWT in the Authorization header' })
+            .status(401).end();
     }
 }
