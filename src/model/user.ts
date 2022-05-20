@@ -42,7 +42,7 @@ export class User {
                 db.insert('INSERT INTO user (is_admin, username, passw_hash_salt) VALUES(?, ?, ?)',
                     is_admin, username, hash)
             )
-            .then((insert_id: number) => {
+            .then((insert_id: number | undefined) => {
                 if (typeof insert_id === 'number') {
                     return User.read(db, insert_id);
                 } else {

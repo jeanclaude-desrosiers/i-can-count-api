@@ -46,7 +46,7 @@ export class Item {
 
         return db.insert('INSERT INTO item (id, name, description, default_price, default_has_tax, parent_uuid) '
             + 'VALUES (?, ?, ?, ?, ?, ?)', id, name, description, default_price, default_has_tax, parent_uuid)
-            .then((insert_id: number) => {
+            .then((insert_id: number | undefined) => {
                 if (typeof insert_id === 'number') {
                     return Item.read(db, insert_id);
                 }

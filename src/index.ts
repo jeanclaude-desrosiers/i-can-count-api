@@ -5,6 +5,8 @@ import item from './controller/item';
 
 const app = express();
 
+app.use(express.json());
+
 app.use('/jwt', jwt);
 app.use('/item', item);
 
