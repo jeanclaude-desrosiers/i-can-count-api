@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { DatabaseClient } from '../model/db';
 import { application as app_config } from '../res/config.json';
 import { JWT } from '../model/jwt';
+import { ErrorResponse } from './error';
 
 const router = Router();
 
@@ -28,16 +29,16 @@ router.post('/', (req, res) => {
             if (user) {
                 return JWT.from_user(user);
             } else {
-                res.json({ err: 'Invalid Credentials' })
-                    .status(400).end();
+                new ErrorResponse(400).add_err('Invalid Credentials')
+                    .send(res);
             }
         })
         .then((jwt: string | undefined) => {
             if (jwt) {
                 res.json({ jwt }).end();
             } else {
-                res.json({ err: 'Could not create JWT for user' })
-                    .status(500).end();
+                new ErrorResponse(500).add_err('Could not create JWT for user')
+                    .send(res);
             }
         })
 });
