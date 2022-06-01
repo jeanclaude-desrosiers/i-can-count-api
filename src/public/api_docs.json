@@ -32,7 +32,7 @@
     },
     {
       "name": "invoice/item",
-      "description": "Management of the items in invoices (CRUD)"
+      "description": "Management of the items in invoices (RU)"
     },
     {
       "name": "invoice/category",
@@ -128,13 +128,596 @@
         }
       }
     },
-    "item": {
+    "/user": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get user information associated with the JWT",
+        "operationId": "getUser",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "example": {
+                  "uuid": 1,
+                  "username": "john.doe",
+                  "is_admin": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "user/password": {
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Update the user's password",
+        "operationId": "updateUserPassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "old_password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                }
+              },
+              "example": {
+                "username": "john.doe",
+                "old_password": "password123",
+                "new_password": "super_strong_passw"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Username or password does not match the JWT"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/item/{uuid}": {
       "get": {
         "tags": [
           "item"
         ],
-        "summary": "Get the list of all saved items",
+        "summary": "Get the item with a given uuid",
+        "operationId": "getItemUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the item to get",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                },
+                "example": {
+                  "uuid": 10,
+                  "id": "20",
+                  "name": "sheep",
+                  "description": "sheep with white wool",
+                  "default_price": 120.99,
+                  "default_has_tax": true,
+                  "parent_uuid": 4
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid uuid, must be an integer"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Item with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "item"
+        ],
+        "summary": "Update the item with a given uuid",
+        "operationId": "updateItemUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the item to update",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Item_No_Uuid"
+              },
+              "example": {
+                "id": "20",
+                "name": "sheep",
+                "description": "sheep with white wool",
+                "default_price": 120.99,
+                "default_has_tax": true,
+                "parent_uuid": 4
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                },
+                "example": {
+                  "uuid": 10,
+                  "id": "20",
+                  "name": "sheep",
+                  "description": "sheep with white wool",
+                  "default_price": 120.99,
+                  "default_has_tax": true,
+                  "parent_uuid": 4
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid 'default price' must be a number or null",
+                    "Missing 'name'"
+                  ],
+                  "data": {
+                    "item": {
+                      "uuid": 10,
+                      "id": "20",
+                      "name": "sheep",
+                      "description": "sheep with white wool",
+                      "default_price": 120.99,
+                      "default_has_tax": true,
+                      "parent_uuid": 4
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Item with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "item"
+        ],
+        "summary": "Delete the item with a given uuid",
+        "operationId": "deleteItemUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the item to delete",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                },
+                "example": {
+                  "uuid": 10,
+                  "id": "20",
+                  "name": "sheep",
+                  "description": "sheep with white wool",
+                  "default_price": 120.99,
+                  "default_has_tax": true,
+                  "parent_uuid": 4
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid uuid, must be an integer"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Item with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Item with uuid '8945762' is used by invoice(s)"
+                  ],
+                  "data": {
+                    "uuid": 8945762,
+                    "invoices_uuid": [
+                      23,
+                      38,
+                      5896
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/item": {
+      "get": {
+        "tags": [
+          "item"
+        ],
+        "summary": "Get a list of items matching filters",
         "operationId": "getItem",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "field",
+            "required": true,
+            "description": "which field to filter on",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "name",
+                "description"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "starts",
+            "description": "string of letter(s) the field starts with",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "contains",
+            "description": "string of letter(s) the field contains",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ends",
+            "description": "string of letter(s) the field ends with",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -179,7 +762,7 @@
             }
           },
           "400": {
-            "description": "invalid jwt or format",
+            "description": "malformed",
             "content": {
               "application/json": {
                 "schema": {
@@ -187,7 +770,8 @@
                 },
                 "example": {
                   "err": [
-                    "Invalid JWT"
+                    "Invalid query parameter 'abc'",
+                    "Invalid field 'abc', must be one of  ['id', 'name', 'description']"
                   ],
                   "data": null
                 }
@@ -203,7 +787,7 @@
                 },
                 "example": {
                   "err": [
-                    "Need a JWT in the Authorization header"
+                    "Need a valid JWT in the Authorization header"
                   ],
                   "data": null
                 }
@@ -229,7 +813,2103 @@
         },
         "security": [
           {
-            "$ref": "#/components/securitySchemes/JWT"
+            "JWT": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "item"
+        ],
+        "summary": "Create a new item",
+        "operationId": "postItem",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Item_No_Uuid"
+              },
+              "example": {
+                "id": "20",
+                "name": "sheep",
+                "description": "sheep with white wool",
+                "default_price": 120.99,
+                "default_has_tax": true,
+                "parent_uuid": 4
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                },
+                "example": {
+                  "uuid": 10,
+                  "id": "20",
+                  "name": "sheep",
+                  "description": "sheep with white wool",
+                  "default_price": 120.99,
+                  "default_has_tax": true,
+                  "parent_uuid": 4
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid 'default price' must be a number or null",
+                    "Missing 'name'"
+                  ],
+                  "data": {
+                    "item": {
+                      "uuid": 10,
+                      "id": "20",
+                      "name": "sheep",
+                      "description": "sheep with white wool",
+                      "default_price": 120.99,
+                      "default_has_tax": true,
+                      "parent_uuid": 4
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/invoice/{uuid}": {
+      "get": {
+        "tags": [
+          "invoice"
+        ],
+        "summary": "Get the invoice with a given uuid",
+        "operationId": "getInvoiceUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the invoice to get",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice"
+                },
+                "example": {
+                  "uuid": 5,
+                  "id": "486",
+                  "is_sell": true,
+                  "category": 23,
+                  "transaction_date": "2022 - 03 - 14"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid uuid, must be an integer"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invoice with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "invoice"
+        ],
+        "summary": "Update the invoice with a given uuid",
+        "operationId": "updateInvoiceUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the invoice to update",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Invoice_No_Uuid"
+              },
+              "example": {
+                "id": "486",
+                "is_sell": true,
+                "category": 23,
+                "transaction_date": "2022 - 03 - 14"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice"
+                },
+                "example": {
+                  "uuid": 5,
+                  "id": "486",
+                  "is_sell": true,
+                  "category": 23,
+                  "transaction_date": "2022 - 03 - 14"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid 'transaction_date', must be a date",
+                    "Missing 'is_sell' property"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invoice with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "invoice"
+        ],
+        "summary": "Delete the invoice with a given uuid",
+        "operationId": "deleteInvoiceUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the invoice to delete",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice"
+                },
+                "example": {
+                  "uuid": 5,
+                  "id": "486",
+                  "is_sell": true,
+                  "category": 23,
+                  "transaction_date": "2022 - 03 - 14"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid uuid, must be an integer"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invoice with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/invoice": {
+      "get": {
+        "tags": [
+          "invoice"
+        ],
+        "summary": "Get a paginated list of invoices matching filters",
+        "operationId": "getInvoice",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "starts",
+            "description": "string of letter(s) the id field starts with",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "contains",
+            "description": "string of letter(s) the id field contains",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ends",
+            "description": "string of letter(s) the id field ends with",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "is_sell",
+            "description": "if it's a sell or buy invoice",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category_uuid",
+            "description": "uuid of the category",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "description": "inclusive start of the transaction date",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "until",
+            "description": "inclusive end of the transaction date",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": true,
+            "description": "number of results per page",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_offset",
+            "required": true,
+            "description": "current page number",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Invoice"
+                      }
+                    },
+                    "page_size": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "page_offset": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "first_page": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "last_page": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  }
+                },
+                "example": {
+                  "results": [
+                    {
+                      "uuid": 5,
+                      "id": "486",
+                      "is_sell": true,
+                      "category": 23,
+                      "transaction_date": "2022 - 03 - 14"
+                    }
+                  ],
+                  "page_size": 15,
+                  "page_offset": 34,
+                  "first_page": 1,
+                  "last_page": 34
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid query parameter 'abc'",
+                    "Missing 'page_size' parameter"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "invoice"
+        ],
+        "summary": "Create a new invoice with items",
+        "operationId": "postInvoice",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Invoice_With_Invoice_Items"
+              },
+              "example": {
+                "id": "486",
+                "is_sell": true,
+                "category": 23,
+                "transaction_date": "2022 - 03 - 14",
+                "invoice_items": [
+                  {
+                    "item_uuid": 10,
+                    "quantity": 2,
+                    "unit_price": 14.99,
+                    "has_tax": true
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice"
+                },
+                "example": {
+                  "uuid": 5,
+                  "id": "486",
+                  "is_sell": true,
+                  "category": 23,
+                  "transaction_date": "2022 - 03 - 14"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid 'items_uuid' contains an invalid uuid",
+                    "Missing 'id'"
+                  ],
+                  "data": {
+                    "invoice_with_items": {
+                      "uuid": 5,
+                      "id": "486",
+                      "is_sell": true,
+                      "category": 23,
+                      "transaction_date": "2022 - 03 - 14",
+                      "items": [
+                        10,
+                        34,
+                        2,
+                        50
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "invoice/{uuid}/items": {
+      "get": {
+        "tags": [
+          "invoice/item"
+        ],
+        "summary": "Get the invoice items related to the invoice with a given uuid",
+        "operationId": "getInvoiceUuidItems",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the invoice",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Invoice_Item"
+                  }
+                },
+                "example": [
+                  {
+                    "item_uuid": 10,
+                    "quantity": 2,
+                    "unit_price": 14.99,
+                    "has_tax": true
+                  },
+                  {
+                    "item_uuid": 58,
+                    "quantity": 1,
+                    "unit_price": 11,
+                    "has_tax": false
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid uuid, must be an integer"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invoice with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "invoice/item"
+        ],
+        "summary": "Update the invoice items related to the invoice with a given uuid",
+        "operationId": "updateInvoiceUuidItems",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the invoice",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Invoice_Item"
+                }
+              },
+              "example": [
+                {
+                  "item_uuid": 10,
+                  "quantity": 2,
+                  "unit_price": 14.99,
+                  "has_tax": true
+                },
+                {
+                  "item_uuid": 58,
+                  "quantity": 1,
+                  "unit_price": 11,
+                  "has_tax": false
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Invoice_Item"
+                  }
+                },
+                "example": [
+                  {
+                    "item_uuid": 10,
+                    "quantity": 2,
+                    "unit_price": 14.99,
+                    "has_tax": true
+                  },
+                  {
+                    "item_uuid": 58,
+                    "quantity": 1,
+                    "unit_price": 11,
+                    "has_tax": false
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid uuid, must be an integer"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invoice with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "invoice/category/{uuid}": {
+      "get": {
+        "tags": [
+          "invoice/category"
+        ],
+        "summary": "Get the invoice category with a given uuid",
+        "operationId": "getInvoiceCategoryUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the invoice category to get",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice_Category"
+                },
+                "example": {
+                  "uuid": 5,
+                  "name": "Private Inc. Incorporated"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid uuid, must be an integer"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invoice category with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "invoice/category"
+        ],
+        "summary": "Update the invoice category with a given uuid",
+        "operationId": "updateInvoiceCategoryUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the invoice category to update",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Invoice_Category_No_Uuid"
+              },
+              "example": {
+                "name": "new name Inc."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice_Category"
+                },
+                "example": {
+                  "uuid": 5,
+                  "name": "new name Inc."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid 'name', too long"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invoice category with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "invoice/category"
+        ],
+        "summary": "Delete the invoice category with a given uuid",
+        "operationId": "deleteInvoiceCategoryUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the invoice category to delete",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice_Category"
+                },
+                "example": {
+                  "uuid": 5,
+                  "name": "new name Inc."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid uuid, must be an integer"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invoice category with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invoice category with uuid '8945762' is used by invoice(s)"
+                  ],
+                  "data": {
+                    "uuid": 8945762,
+                    "invoices_uuid": [
+                      23,
+                      38,
+                      5896
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "invoice/category": {
+      "get": {
+        "tags": [
+          "invoice/category"
+        ],
+        "summary": "Get a list of all invoice categories",
+        "operationId": "getInvoiceCategory",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Invoice_Category"
+                  }
+                },
+                "example": [
+                  {
+                    "uuid": 38,
+                    "name": "Super Big Company ltd."
+                  },
+                  {
+                    "uuid": 47,
+                    "name": "Tiny shop very ltd."
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "invoice/category"
+        ],
+        "summary": "Create a new invoice category",
+        "operationId": "postInvoiceCategory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Invoice_Category_No_Uuid"
+              },
+              "example": {
+                "name": "Hello I am new"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice_Category"
+                },
+                "example": {
+                  "uuid": 93,
+                  "name": "Hello I am new"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid 'name' too long"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "tax/{uuid}": {
+      "get": {
+        "tags": [
+          "tax"
+        ],
+        "summary": "Get the tax with a given uuid",
+        "operationId": "getTaxUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the tax to get",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tax"
+                },
+                "example": {
+                  "uuid": 1,
+                  "name": "TPS",
+                  "rate": 0.05,
+                  "active_from": "2008 - 01 - 01",
+                  "active_until": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid uuid, must be an integer"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Tax with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "tax"
+        ],
+        "summary": "Update the tax with a given uuid",
+        "operationId": "updateTaxUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the tax to update",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tax_No_Uuid"
+              },
+              "example": {
+                "name": "TPS",
+                "rate": 0.07,
+                "active_from": "2008 - 01 - 01",
+                "active_until": null
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tax"
+                },
+                "example": {
+                  "uuid": 1,
+                  "name": "TPS",
+                  "rate": 0.07,
+                  "active_from": "2008 - 01 - 01",
+                  "active_until": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid 'name', too long"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Tax with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "tax"
+        ],
+        "summary": "Delete the tax with a given uuid",
+        "operationId": "deleteTaxUuid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "description": "uuid of the tax to delete",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tax"
+                },
+                "example": {
+                  "uuid": 1,
+                  "name": "TPS",
+                  "rate": 0.05,
+                  "active_from": "2008 - 01 - 01",
+                  "active_until": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid uuid, must be an integer"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Tax with uuid '8945762' does not exist"
+                  ],
+                  "data": {
+                    "uuid": 8945762
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "tax": {
+      "get": {
+        "tags": [
+          "tax"
+        ],
+        "summary": "Get a list of taxes matching filters",
+        "operationId": "getTax",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "active_at",
+            "description": "date at which taxes are active",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tax"
+                  }
+                },
+                "example": [
+                  {
+                    "uuid": 1,
+                    "name": "TPS",
+                    "rate": 0.05,
+                    "active_from": "2008 - 01 - 01",
+                    "active_until": null
+                  },
+                  {
+                    "uuid": 2,
+                    "name": "TVQ",
+                    "rate": 0.09975,
+                    "active_from": "2013 - 01 - 01",
+                    "active_until": null
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid query parameter 'active_at', must be a date"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "tax"
+        ],
+        "summary": "Create a new tax",
+        "operationId": "postTax",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tax_No_Uuid"
+              },
+              "example": {
+                "name": "TPS",
+                "rate": 0.05,
+                "active_from": "2008 - 01 - 01",
+                "active_until": null
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tax"
+                },
+                "example": {
+                  "uuid": 1,
+                  "name": "TPS",
+                  "rate": 0.05,
+                  "active_from": "2008 - 01 - 01",
+                  "active_until": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Invalid 'active_until' must be a date or null",
+                    "Missing 'name'"
+                  ],
+                  "data": {
+                    "item": {
+                      "name": "TPS",
+                      "rate": 0.05,
+                      "active_from": "2008 - 01 - 01",
+                      "active_until": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Need a valid JWT in the Authorization header"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error_Response"
+                },
+                "example": {
+                  "err": [
+                    "Database error"
+                  ],
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
           }
         ]
       }
@@ -258,6 +2938,22 @@
           "data": {
             "type": "object",
             "nullable": true
+          }
+        }
+      },
+      "User": {
+        "description": "User information",
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "is_admin": {
+            "type": "boolean"
           }
         }
       },
@@ -290,6 +2986,197 @@
           "parent_uuid": {
             "type": "integer",
             "format": "int64",
+            "nullable": true
+          }
+        }
+      },
+      "Item_No_Uuid": {
+        "description": "An item, without its uuid",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "default_price": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "default_has_tax": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "parent_uuid": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        }
+      },
+      "Invoice": {
+        "description": "Invoice information (directly related)",
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string"
+          },
+          "is_sell": {
+            "type": "boolean"
+          },
+          "category_uuid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transaction_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "Invoice_No_Uuid": {
+        "description": "Invoice information (directly related), without its uuid",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "is_sell": {
+            "type": "boolean"
+          },
+          "category_uuid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transaction_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "Invoice_Item": {
+        "description": "An item in an invoice",
+        "type": "object",
+        "properties": {
+          "item_uuid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unit_price": {
+            "type": "number",
+            "format": "double"
+          },
+          "has_tax": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Invoice_With_Invoice_Items": {
+        "description": "Invoice information and optional items",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "is_sell": {
+            "type": "boolean"
+          },
+          "category_uuid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transaction_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "invoice_items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Invoice_Item"
+            },
+            "required": false
+          }
+        }
+      },
+      "Invoice_Category": {
+        "description": "Category for an invoice",
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Invoice_Category_No_Uuid": {
+        "description": "Category for an invoice, without its uuid",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Tax": {
+        "description": "Tax applied to items in invoices",
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "rate": {
+            "type": "number",
+            "format": "double"
+          },
+          "active_from": {
+            "type": "string",
+            "format": "date"
+          },
+          "active_until": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          }
+        }
+      },
+      "Tax_No_Uuid": {
+        "description": "Tax applied to items in invoices, without its uuid",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "rate": {
+            "type": "number",
+            "format": "double"
+          },
+          "active_from": {
+            "type": "string",
+            "format": "date"
+          },
+          "active_until": {
+            "type": "string",
+            "format": "date",
             "nullable": true
           }
         }
